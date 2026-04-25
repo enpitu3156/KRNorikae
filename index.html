@@ -185,32 +185,22 @@
 /* --- ポップアップ（ツールチップ）のデザイン --- */
 .station-tooltip {
     visibility: hidden;
-    width: auto;           /* 固定幅をやめて内容に合わせる */
-    min-width: 140px;      /* 最低限の幅 */
-    max-width: 80vw;       /* ★画面幅の80%を超えないようにする（画面外対策） */
-    background-color: rgba(44, 62, 80, 0.98);
+    width: 180px;
+    background-color: rgba(44, 62, 80, 0.95);
     color: #fff;
     text-align: left;
     border-radius: 8px;
     padding: 12px;
     position: absolute;
     z-index: 100;
-    bottom: 130%;          /* 駅名の上に表示 */
+    bottom: 130%;
     left: 50%;
-    transform: translateX(-50%); /* 中央寄せ */
+    transform: translateX(-50%);
     opacity: 0;
-    transition: opacity 0.2s;
-    font-size: 14px;       /* 少し大きくして読みやすく */
+    transition: opacity 0.2s, transform 0.2s;
+    font-size: 13px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     pointer-events: none;
-}
-
-/* ★スマホでタップした時に表示を維持する設定 */
-.path-station-wrapper:focus .station-tooltip,
-.path-station-wrapper:active .station-tooltip,
-.path-station-wrapper:hover .station-tooltip {
-    visibility: visible;
-    opacity: 1;
 }
 
 .station-tooltip hr {
@@ -239,16 +229,6 @@
     border-radius: 50%;
     display: inline-block;
 }
-.station-tooltip::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    border-width: 6px;
-    border-style: solid;
-    border-color: rgba(44, 62, 80, 0.98) transparent transparent transparent;
-}
     </style>
 </head>
 <body>
@@ -266,12 +246,16 @@
                 <button onclick="searchTime()">検索する</button>
             </div>
 
-            <div class="status-box">
-                <h3>現在の運行状況</h3>
-                <p>● 北海道新幹線：通常通り</p>
-                <p>● 東北新幹線：通常通り</p>
-                <p>● 東海道・中央・山陽：通常通り</p>
-            </div>
+             <div class="status-box">
+        <h3>現在の運行状況</h3>
+        <p>● 北海道新幹線：通常通りご利用できます。</p>
+        <p>● 東北新幹線：通常通りご利用できます。</p>
+        <p>● 東海道新幹線（東京～名古屋）：通常通りご利用できます。</p>
+        <p>● 中央新幹線：通常通りご利用できます。</p>
+        <p>● 山陽新幹線：通常通りご利用できます。</p>
+        <p>● 九州新幹線・西九州新幹線：延伸作業中です。次の開業予定駅は久留米です。</p>
+        <p>● その他の路線：現在は予定がありません。</p>
+    </div>
         </div>
 
         <div id="result" class="result-section">
