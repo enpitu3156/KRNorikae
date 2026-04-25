@@ -5,7 +5,8 @@ const lines = [
     { name: "山陽", symbol: "SN", color: "#0062ab", stations: ["大阪", "姫路", "岡山", "広島", "山口", "小倉", "博多"] },
     { name: "東北", symbol: "TH", color: "#39b84a", stations: ["東京", "つくば", "宇都宮", "郡山", "福島", "仙台", "北上", "盛岡", "八戸", "青森"] },
     { name: "北海道", symbol: "HK", color: "#008446", stations: ["青森", "木古内", "函館北斗", "八雲", "小樽", "札幌"] },
-    { name: "長野房総", symbol: "NB", color: "#b9d200", stations: ["東京", "大宮", "渋川"] }
+    { name: "長野房総", symbol: "NB", color: "#b9d200", stations: ["東京", "大宮", "渋川"] },
+    { name: "九州", symbol: "KS", color: "#d81e00", stations: ["博多", "久留米"] }
 ];
 
 const stations = {
@@ -27,7 +28,7 @@ const stations = {
     "広島": { "山口":62, "岡山": 58 },
     "山口": { "小倉":42, "広島": 62 },
     "小倉": { "博多":32, "山口": 42},
-    "博多": { "小倉": 32 },
+    "博多": { "小倉":32, "久留米": 15 },
     "つくば": { "宇都宮":13, "東京": 40 },
     "宇都宮": { "郡山":45, "つくば": 13 },
     "郡山": { "福島":14, "宇都宮": 45 },
@@ -43,7 +44,8 @@ const stations = {
     "小樽": { "札幌":15, "八雲": 62 },
     "札幌": { "小樽": 15 },
     "大宮": { "渋川":45, "東京": 19 },
-    "渋川": { "大宮": 45 }
+    "渋川": { "大宮": 45 },
+    "久留米": {"博多": 15 }
 };
 
 // ★ページ読み込み時にサジェストを自動生成
@@ -113,9 +115,10 @@ function searchTime() {
         let timeString = (minutes > 0) ? `${minutes}分${seconds}秒` : `${seconds}秒`;
 
         // ★経路表示（ナンバリング情報を含む）
-       let pathHTML = result.path.map((stationName) => {
+        let pathHTML = result.path.map((stationName) => {
             const belongingLines = lines.filter(line => line.stations.includes(stationName));
             
+            // ポップアップ用の中身を作成
             let infoHTML = belongingLines.map(line => {
                 const index = line.stations.indexOf(stationName) + 1;
                 const stationNumber = `${line.symbol}-${String(index).padStart(2, '0')}`;
@@ -125,15 +128,9 @@ function searchTime() {
             let dotsHTML = belongingLines.map(line => `<span class="line-dot" style="background-color: ${line.color};"></span>`).join("");
 
             return `
-                <div class="path-station-wrapper" tabindex="0"> <span class="path-station">
-                        <span class="dots-container">${dotsHTML}</span>
-                        ${stationName}
-                    </span>
-                    <div class="station-tooltip">
-                        <strong>${stationName}駅</strong>
-                        <hr>
-                        ${infoHTML}
-                    </div>
+                <div class="path-station-wrapper">
+                    <span class="path-station"><span class="dots-container">${dotsHTML}</span>${stationName}</span>
+                    <div class="station-tooltip"><strong>${stationName}駅</strong><hr>${infoHTML}</div>
                 </div>
             `;
         }).join('<span class="path-arrow">→</span>');
