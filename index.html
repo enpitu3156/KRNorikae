@@ -185,22 +185,32 @@
 /* --- ポップアップ（ツールチップ）のデザイン --- */
 .station-tooltip {
     visibility: hidden;
-    width: 180px;
-    background-color: rgba(44, 62, 80, 0.95);
+    width: auto;           /* 固定幅をやめて内容に合わせる */
+    min-width: 140px;      /* 最低限の幅 */
+    max-width: 80vw;       /* ★画面幅の80%を超えないようにする（画面外対策） */
+    background-color: rgba(44, 62, 80, 0.98);
     color: #fff;
     text-align: left;
     border-radius: 8px;
     padding: 12px;
     position: absolute;
     z-index: 100;
-    bottom: 130%;
+    bottom: 130%;          /* 駅名の上に表示 */
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-50%); /* 中央寄せ */
     opacity: 0;
-    transition: opacity 0.2s, transform 0.2s;
-    font-size: 13px;
+    transition: opacity 0.2s;
+    font-size: 14px;       /* 少し大きくして読みやすく */
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     pointer-events: none;
+}
+
+/* ★スマホでタップした時に表示を維持する設定 */
+.path-station-wrapper:focus .station-tooltip,
+.path-station-wrapper:active .station-tooltip,
+.path-station-wrapper:hover .station-tooltip {
+    visibility: visible;
+    opacity: 1;
 }
 
 .station-tooltip hr {
@@ -228,6 +238,16 @@
     height: 8px;
     border-radius: 50%;
     display: inline-block;
+}
+.station-tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px;
+    border-style: solid;
+    border-color: rgba(44, 62, 80, 0.98) transparent transparent transparent;
 }
     </style>
 </head>

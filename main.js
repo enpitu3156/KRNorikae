@@ -113,10 +113,9 @@ function searchTime() {
         let timeString = (minutes > 0) ? `${minutes}分${seconds}秒` : `${seconds}秒`;
 
         // ★経路表示（ナンバリング情報を含む）
-        let pathHTML = result.path.map((stationName) => {
+       let pathHTML = result.path.map((stationName) => {
             const belongingLines = lines.filter(line => line.stations.includes(stationName));
             
-            // ポップアップ用の中身を作成
             let infoHTML = belongingLines.map(line => {
                 const index = line.stations.indexOf(stationName) + 1;
                 const stationNumber = `${line.symbol}-${String(index).padStart(2, '0')}`;
@@ -126,9 +125,15 @@ function searchTime() {
             let dotsHTML = belongingLines.map(line => `<span class="line-dot" style="background-color: ${line.color};"></span>`).join("");
 
             return `
-                <div class="path-station-wrapper">
-                    <span class="path-station"><span class="dots-container">${dotsHTML}</span>${stationName}</span>
-                    <div class="station-tooltip"><strong>${stationName}駅</strong><hr>${infoHTML}</div>
+                <div class="path-station-wrapper" tabindex="0"> <span class="path-station">
+                        <span class="dots-container">${dotsHTML}</span>
+                        ${stationName}
+                    </span>
+                    <div class="station-tooltip">
+                        <strong>${stationName}駅</strong>
+                        <hr>
+                        ${infoHTML}
+                    </div>
                 </div>
             `;
         }).join('<span class="path-arrow">→</span>');
