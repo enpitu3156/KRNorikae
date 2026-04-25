@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KR 乗り換え検索</title>
+    <style>
+    /* 全体の基本設定 */
+    body {
+        font-family: 'Helvetica Neue', Arial, sans-serif;
+        background-color: #f4f7f6;
+        color: #333;
+        margin: 0;
+        padding: 20px;
+        /* ベースの文字サイズを大きくする */
+        font-size: 18px;
+    }
+
+    h1 { 
+        color: #2c3e50; 
+        margin-bottom: 20px;
+        text-align: center; /* タイトルは中央 */
+    }
+
+    /* 路線図画像の調整 */
+    .route-map {
+        display: block;
+        margin: 0 auto 30px;
+        max-width: 100%;
+        height: auto;
+    }
+
+    /* ★左右に分けるためのコンテナ */
+    .main-container {
+        display: flex;
+        flex-direction: row; /* 横に並べる */
+        justify-content: center;
+        align-items: flex-start;
+        gap: 40px;
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    /* 左側：入力エリア */
+    .search-section {
+        flex: 0 1 450px; /* 横幅をしっかり確保しつつ巨大化を防ぐ */
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .search-box {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    /* 入力欄を大きく */
+    input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 15px;
+        margin: 10px 0 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 20px;
+    }
+
+    /* ボタンを大きく */
+    button {
+        width: 100%;
+        padding: 18px;
+        background-color: #3498db;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 20px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+
+    button:hover { background-color: #2980b9; }
+
+    /* 運行状況ボックス */
+    .status-box {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 12px;
+        border-left: 5px solid #3498db;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        font-size: 0.9em;
+    }
+
+    /* 右側：結果表示エリア */
+    .result-section {
+        flex: 1;
+        min-width: 350px;
+    }
+
+    /* スマホ用の設定（画面が狭いときは縦に並べる） */
+    @media (max-width: 850px) {
+        .main-container {
+            flex-direction: column;
+            align-items: center;
+        }
+        .search-section, .result-section {
+            width: 100%;
+            max-width: 500px;
+        }
+    }
+
+    /* 検索結果のカードデザイン（既存のものを踏襲しつつ微調整） */
+    .result-card {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+
+    .result-time .value {
+        font-size: 36px;
+        color: #e67e22;
+        font-weight: bold;
+    }
+
+    .error-text {
+        color: #e74c3c;
+        background: #fdf2f2;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+        font-weight: bold;
+    }
+    /* --- 経路表示のデザイン --- */
+.result-path {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 8px;
+    margin-top: 15px;
+}
+
+.path-station-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.path-station {
+    background: #f8f9fa;
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid #e9ecef;
+    font-weight: 500;
+    color: #34495e;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+/* 路線ドット */
+.dots-container {
+    display: flex;
+    gap: 3px;
+}
+
+.line-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+/* 矢印 */
+.path-arrow {
+    color: #bdc3c7;
+    font-weight: bold;
+}
+
+/* --- ポップアップ（ツールチップ）のデザイン --- */
+.station-tooltip {
+    visibility: hidden;
+    width: 180px;
+    background-color: rgba(44, 62, 80, 0.95);
+    color: #fff;
+    text-align: left;
+    border-radius: 8px;
+    padding: 12px;
+    position: absolute;
+    z-index: 100;
+    bottom: 130%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+    font-size: 13px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    pointer-events: none;
+}
+
+.station-tooltip hr {
+    border: 0;
+    border-top: 1px solid rgba(255,255,255,0.2);
+    margin: 8px 0;
+}
+
+.path-station-wrapper:hover .station-tooltip {
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(-50%) translateY(-5px);
+}
+
+/* ミニドット（ポップアップ内） */
+.line-info {
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.mini-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+    </style>
+</head>
+<body>
+
+    <h1>KR 乗り換え検索</h1>
+
+    <img src="20260412-1.png" alt="KR 路線図" class="route-map">
+
+    <div class="main-container">
+        <div class="search-section">
+            <div class="search-box">
+                出発駅: <input type="text" id="startNode" list="station-options" placeholder="例：東京">
+                到着駅: <input type="text" id="endNode" list="station-options" placeholder="例：名古屋">
+                <datalist id="station-options"></datalist>
+                <button onclick="searchTime()">検索する</button>
+            </div>
+
+            <div class="status-box">
+                <h3>現在の運行状況</h3>
+                <p>● 北海道新幹線：通常通り</p>
+                <p>● 東北新幹線：通常通り</p>
+                <p>● 東海道・中央・山陽：通常通り</p>
+            </div>
+        </div>
+
+        <div id="result" class="result-section">
+            </div>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>
